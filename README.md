@@ -2,7 +2,7 @@
 
 [![Instagram](https://img.shields.io/static/v1?label=insta&logo=instagram&message=camilo_laiton&color=purple "Camilo's Instagram")](https://www.instagram.com/camilo_laiton/ "profil")
 
-Code for aerial building segmentation using attention models.
+Research repository code for aerial building segmentation using attention models.
   
 ## End
   This master thesis is currently being developped. For more information, please contact me.
