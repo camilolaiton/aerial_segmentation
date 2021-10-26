@@ -2,8 +2,8 @@
 
 Research repository code for aerial building segmentation using attention models.
 
-![GidiaGroup](https://raw.githubusercontent.com/camilolaiton/aerial_segmentation/main/imgs/gidia_unal.jpg)
-![GidsycGroup](https://raw.githubusercontent.com/camilolaiton/aerial_segmentation/main/imgs/gidsyc_unimag.jpg)
+![GidiaGroup](https://github.com/camilolaiton/aerial_segmentation/blob/main/imgs/gidia_unal.jpg)
+![GidsycGroup](https://github.com/camilolaiton/aerial_segmentation/blob/main/imgs/gidsyc_unimag.jpg)
 
 ## End
   This master thesis is currently being developped. For more information, please contact me.
