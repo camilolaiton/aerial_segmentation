@@ -1,9 +1,10 @@
 # Aerial Building Segmentation Using Attention Models
 
-[![Instagram](https://img.shields.io/static/v1?label=insta&logo=instagram&message=camilo_laiton&color=purple "Camilo's Instagram")](https://www.instagram.com/camilo_laiton/ "profil")
-
 Research repository code for aerial building segmentation using attention models.
-  
+
+![GidiaGroup](https://raw.githubusercontent.com/camilolaiton/aerial_segmentation/main/imgs/gidia_unal.jpg)
+![GidsycGroup](https://raw.githubusercontent.com/camilolaiton/aerial_segmentation/main/imgs/gidsyc_unimag.jpg)
+
 ## End
   This master thesis is currently being developped. For more information, please contact me.
   **Thanks for reading**
