@@ -132,7 +132,7 @@ def main():
     import pandas as pd
 
     # Defining data dirs
-    DATA_DIR = '../datasets/tiff/'
+    DATA_DIR = '../../datasets/tiff/'
     x_train_dir = os.path.join(DATA_DIR, 'train')
     y_train_dir = os.path.join(DATA_DIR, 'train_labels')
 
@@ -143,7 +143,7 @@ def main():
     y_test_dir = os.path.join(DATA_DIR, 'test_labels') 
 
     # Getting info from csv
-    class_dict = pd.read_csv("../datasets/label_class_dict.csv")
+    class_dict = pd.read_csv("../../datasets/label_class_dict.csv")
     # Get class names
     class_names = class_dict['name'].tolist()
     # Get class RGB values
