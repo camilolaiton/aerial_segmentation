@@ -198,7 +198,7 @@ def main():
     # Defining dataset and data dirs
 
     # Getting info from csv
-    class_dict = pd.read_csv("../../datasets/label_class_dict.csv")
+    class_dict = pd.read_csv(config.dataset_path + "/label_class_dict.csv")
     # Get class names
     class_names = class_dict['name'].tolist()
     # Get class RGB values
