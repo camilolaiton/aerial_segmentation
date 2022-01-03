@@ -1,6 +1,5 @@
 from torch import nn
 from .blocks import *
-from config import get_config
 
 class CvTModified(nn.Module):
     def __init__(self, config):
@@ -279,6 +278,7 @@ def count_params(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad), sum(p.numel() for p in model.parameters())
 
 if __name__ == "__main__":
+    from config import get_config
     image_size = 256
     channels = 3
     x = torch.Tensor(1, channels, image_size, image_size)
