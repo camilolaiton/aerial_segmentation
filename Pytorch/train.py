@@ -1,5 +1,4 @@
 import argparse
-from Pytorch.model.blocks import Transformer
 from torch.utils.tensorboard import SummaryWriter
 import torch
 from utils import utils
@@ -227,8 +226,8 @@ def main():
     y_test_dir = os.path.join(DATA_DIR, 'test_labels') 
 
     train_loader = MassachusettsBuildingsDataset(x_train_dir, y_train_dir, class_rgb_values=select_class_rgb_values)
-    random_idx = random.randint(0, len(dataset)-1)
-    image, mask = dataset[random_idx]
+    random_idx = random.randint(0, len(train_loader)-1)
+    image, mask = train_loader[random_idx]
 
     print('image:',image.shape)
     print('mask:',mask.shape)
