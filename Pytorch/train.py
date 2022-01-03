@@ -13,6 +13,7 @@ import numpy as np
 import random
 import os
 import pandas as pd
+import albumentations as album
 
 def count_params(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad), sum(p.numel() for p in model.parameters())
@@ -28,7 +29,7 @@ def save_checkpoint(state, filename="my_checkpoint.pth.tar"):
     print("[+] Saving checkpoint")
     torch.save(state, filename)
 
-def train(config:dict, load_model:bool, save_model:bool, training_folder:str):
+def train(config:dict, load_model:bool, save_model:bool, training_folder:str, train_loader, test_loader):
 
     model_path = f"{training_folder}/model_trained_architecture.pt"
 
@@ -142,7 +143,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str):
 
         model.eval()
         with torch.no_grad():
-            with tqdm(test_dataloader, unit='batch', position=0, leave=True) as tbatch:
+            with tqdm(test_loader, unit='batch', position=0, leave=True) as tbatch:
                 for i, data in enumerate(tbatch):
                     image, mask = data['image'].to(device), data['mask'].to(device)
                     pred = model(image)
@@ -176,6 +177,47 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str):
         model.train()
 
     writer.close()
+
+def get_training_augmentation():
+    train_transform = [    
+        album.RandomCrop(height=256, width=256, always_apply=True),
+        album.OneOf(
+            [
+                album.HorizontalFlip(p=1),
+                album.VerticalFlip(p=1),
+                album.RandomRotate90(p=1),
+            ],
+            p=0.75,
+        ),
+    ]
+    return album.Compose(train_transform)
+
+
+def get_validation_augmentation():   
+    # Add sufficient padding to ensure image is divisible by 32
+    test_transform = [        
+        album.CenterCrop (height=512, width=512, always_apply=True)        
+    ]
+    return album.Compose(test_transform)
+
+def to_tensor(x, **kwargs):
+    return x.transpose(2, 0, 1).astype('float32')
+
+
+def get_preprocessing(preprocessing_fn=None):
+    """Construct preprocessing transform    
+    Args:
+        preprocessing_fn (callable): data normalization function 
+            (can be specific for each pretrained neural network)
+    Return:
+        transform: albumentations.Compose
+    """   
+    _transform = []
+    if preprocessing_fn:
+        _transform.append(album.Lambda(image=preprocessing_fn))
+    _transform.append(album.Lambda(image=to_tensor, mask=to_tensor))
+        
+    return album.Compose(_transform)
 
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
@@ -225,7 +267,21 @@ def main():
     x_test_dir = os.path.join(DATA_DIR, 'test')
     y_test_dir = os.path.join(DATA_DIR, 'test_labels') 
 
-    train_loader = MassachusettsBuildingsDataset(x_train_dir, y_train_dir, class_rgb_values=select_class_rgb_values)
+    train_loader = MassachusettsBuildingsDataset(
+        x_train_dir, 
+        y_train_dir, 
+        augmentation=get_training_augmentation(),
+        preprocessing=get_preprocessing(preprocessing_fn=None),
+        class_rgb_values=select_class_rgb_values,
+    )
+
+    test_loader = MassachusettsBuildingsDataset(
+        x_test_dir, y_test_dir, 
+        augmentation=get_validation_augmentation(), 
+        preprocessing=get_preprocessing(preprocessing_fn=None),
+        class_rgb_values=select_class_rgb_values,
+    )
+
     random_idx = random.randint(0, len(train_loader)-1)
     image, mask = train_loader[random_idx]
 
@@ -234,6 +290,15 @@ def main():
     print('reverse mask:', reverse_one_hot(mask).shape)
     print('colour_code mask:', colour_code_segmentation(reverse_one_hot(mask), select_class_rgb_values).shape)
     print(train_loader.__len__())
+
+    train(
+        config=config, 
+        load_model=retrain, 
+        save_model=True, 
+        training_folder=training_folder,
+        train_loader=train_loader,
+        test_loader=test_loader
+    )
 
 if __name__ == "__main__":
     main()
