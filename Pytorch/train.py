@@ -38,7 +38,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
     writer = SummaryWriter(training_folder)
     step = 0
 
-    model = CvTModified()
+    model = CvTModified(config=config)
 
     torch.backends.cudnn.benchmark = True
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
