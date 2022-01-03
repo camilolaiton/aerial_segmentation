@@ -287,14 +287,14 @@ def main():
     train_loader = DataLoader(data_train_loader, batch_size=config.batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
     test_loader = DataLoader(data_test_loader, batch_size=config.batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
 
-    random_idx = random.randint(0, len(train_loader)-1)
-    image, mask = train_loader[random_idx]
+    random_idx = random.randint(0, len(data_train_loader)-1)
+    image, mask = data_train_loader[random_idx]
 
     print('image:',image.shape)
     print('mask:',mask.shape)
     print('reverse mask:', reverse_one_hot(mask).shape)
     # print('colour_code mask:', colour_code_segmentation(reverse_one_hot(mask), select_class_rgb_values).shape)
-    print(train_loader.__len__())
+    print(data_train_loader.__len__())
 
     train(
         config=config, 
