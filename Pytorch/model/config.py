@@ -47,7 +47,7 @@ def get_config():
 
 
     config.config_name = "testing"
-    config.dataset_path = '../dataset_3D_37/'
+    config.dataset_path = '../datasets/'
     config.learning_rate = 0.00001
     config.optimizer = 'adam' #SGD, adam
     config.weight_decay = 1e-4

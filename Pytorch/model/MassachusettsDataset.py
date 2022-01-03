@@ -131,17 +131,6 @@ def main():
     import matplotlib.pyplot as plt
     import pandas as pd
 
-    # Defining data dirs
-    DATA_DIR = '../../datasets/tiff/'
-    x_train_dir = os.path.join(DATA_DIR, 'train')
-    y_train_dir = os.path.join(DATA_DIR, 'train_labels')
-
-    x_valid_dir = os.path.join(DATA_DIR, 'val')
-    y_valid_dir = os.path.join(DATA_DIR, 'val_labels')
-
-    x_test_dir = os.path.join(DATA_DIR, 'test')
-    y_test_dir = os.path.join(DATA_DIR, 'test_labels') 
-
     # Getting info from csv
     class_dict = pd.read_csv("../../datasets/label_class_dict.csv")
     # Get class names

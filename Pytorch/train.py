@@ -1,14 +1,19 @@
 import argparse
+from Pytorch.model.blocks import Transformer
 from torch.utils.tensorboard import SummaryWriter
 import torch
 from utils import utils
 from model.config import get_config
 from model.network import CvTModified
 from model.losses import *
+from model.MassachusettsDataset import *
 from tqdm import tqdm
 from time import sleep
 from torchmetrics import MetricCollection, Accuracy, Precision, Recall, F1
 import numpy as np
+import random
+import os
+import pandas as pd
 
 def count_params(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad), sum(p.numel() for p in model.parameters())
@@ -24,7 +29,7 @@ def save_checkpoint(state, filename="my_checkpoint.pth.tar"):
     print("[+] Saving checkpoint")
     torch.save(state, filename)
 
-def train(load_model:bool, save_model:bool, training_folder:str):
+def train(config:dict, load_model:bool, save_model:bool, training_folder:str):
 
     model_path = f"{training_folder}/model_trained_architecture.pt"
 
@@ -32,9 +37,6 @@ def train(load_model:bool, save_model:bool, training_folder:str):
     utils.create_folder(f"{training_folder}/checkpoints")
     writer = SummaryWriter(training_folder)
     step = 0
-
-    # getting training config
-    config = get_config()
 
     model = CvTModified()
 
@@ -190,3 +192,46 @@ def main():
 
     retrain = args['retrain']
     training_folder = 'trainings/' + args['folder_name']
+    
+    # getting training config
+    config = get_config()
+
+    # Defining dataset and data dirs
+
+    # Getting info from csv
+    class_dict = pd.read_csv("../../datasets/label_class_dict.csv")
+    # Get class names
+    class_names = class_dict['name'].tolist()
+    # Get class RGB values
+    class_rgb_values = class_dict[['r','g','b']].values.tolist()
+
+    print('All dataset classes and their corresponding RGB values in labels:')
+    print('Class Names: ', class_names)
+    print('Class RGB values: ', class_rgb_values)
+
+    # Useful to shortlist specific classes in datasets with large number of classes
+    select_classes = ['background', 'building']
+
+    # Get RGB values of required classes
+    select_class_indices = [class_names.index(cls.lower()) for cls in select_classes]
+    select_class_rgb_values =  np.array(class_rgb_values)[select_class_indices]
+
+    DATA_DIR = config.dataset_path + 'tiff/'
+    x_train_dir = os.path.join(DATA_DIR, 'train')
+    y_train_dir = os.path.join(DATA_DIR, 'train_labels')
+
+    x_valid_dir = os.path.join(DATA_DIR, 'val')
+    y_valid_dir = os.path.join(DATA_DIR, 'val_labels')
+
+    x_test_dir = os.path.join(DATA_DIR, 'test')
+    y_test_dir = os.path.join(DATA_DIR, 'test_labels') 
+
+    train_loader = MassachusettsBuildingsDataset(x_train_dir, y_train_dir, class_rgb_values=select_class_rgb_values)
+    random_idx = random.randint(0, len(dataset)-1)
+    image, mask = dataset[random_idx]
+
+    print('image:',image.shape)
+    print('mask:',mask.shape)
+    print('reverse mask:', reverse_one_hot(mask).shape)
+    print('colour_code mask:', colour_code_segmentation(reverse_one_hot(mask), select_class_rgb_values).shape)
+    print(train_loader.__len__())
