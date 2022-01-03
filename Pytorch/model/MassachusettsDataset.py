@@ -121,7 +121,7 @@ class MassachusettsBuildingsDataset(torch.utils.data.Dataset):
             sample = self.preprocessing(image=image, mask=mask)
             image, mask = sample['image'], sample['mask']
             
-        return image, mask #astype('int64') #, fname
+        return torch.tensor(image), torch.tensor(mask) #astype('int64') #, fname
         
     def __len__(self):
         # return length of 
