@@ -234,3 +234,6 @@ def main():
     print('reverse mask:', reverse_one_hot(mask).shape)
     print('colour_code mask:', colour_code_segmentation(reverse_one_hot(mask), select_class_rgb_values).shape)
     print(train_loader.__len__())
+
+if __name__ == "__main__":
+    main()
