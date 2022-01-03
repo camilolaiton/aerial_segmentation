@@ -2,6 +2,7 @@ import argparse
 from torch.utils.tensorboard import SummaryWriter
 import torch
 from utils import utils
+from torch.utils.data import DataLoader
 from model.config import get_config
 from model.network import CvTModified
 from model.losses import *
@@ -267,7 +268,7 @@ def main():
     x_test_dir = os.path.join(DATA_DIR, 'test')
     y_test_dir = os.path.join(DATA_DIR, 'test_labels') 
 
-    train_loader = MassachusettsBuildingsDataset(
+    data_train_loader = MassachusettsBuildingsDataset(
         x_train_dir, 
         y_train_dir, 
         augmentation=get_training_augmentation(),
@@ -275,12 +276,16 @@ def main():
         class_rgb_values=select_class_rgb_values,
     )
 
-    test_loader = MassachusettsBuildingsDataset(
+    data_test_loader = MassachusettsBuildingsDataset(
         x_test_dir, y_test_dir, 
         augmentation=get_validation_augmentation(), 
         preprocessing=get_preprocessing(preprocessing_fn=None),
         class_rgb_values=select_class_rgb_values,
     )
+
+    num_workers = 2#os.cpu_count()
+    train_loader = DataLoader(data_train_loader, batch_size=config.batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
+    test_loader = DataLoader(data_test_loader, batch_size=config.batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
 
     random_idx = random.randint(0, len(train_loader)-1)
     image, mask = train_loader[random_idx]
