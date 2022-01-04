@@ -86,6 +86,10 @@ class CvTModified(nn.Module):
 
         self.seg_head = SegmentationHead(16, config.num_classes)
 
+        self.skip_process_0 = EncoderDecoderConnections(16, 16)
+        self.skip_process_1 = EncoderDecoderConnections(32, 32)
+        self.skip_process_2 = EncoderDecoderConnections(32, 32)
+        self.skip_process_3 = EncoderDecoderConnections(32, 32)
     
     def forward(self, x):
 
@@ -113,18 +117,22 @@ class CvTModified(nn.Module):
         # PrintLayer()(x)
 
         # Input: N, 64, 16, 16 | output: N, 64, 32, 32
+        skip_3 = self.skip_process_3(skip_3)
         x = self.up_1(x, skip_3)
         # PrintLayer()(x)
 
         # Input: N, 64, 32, 32 | output: N, 32, 64, 64
+        skip_2 = self.skip_process_2(skip_2)
         x = self.up_2(x, skip_2)
         # PrintLayer()(x)
 
         # Input: N, 128, 64, 64 | output: N, 16, 128, 128
+        skip_1 = self.skip_process_1(skip_1)
         x = self.up_3(x, skip_1)
         # PrintLayer()(x)
 
         # Input: N, 16, 128, 128 | output: N, 16, 256, 256
+        skip_0 = self.skip_process_0(skip_0)
         x = self.up_4(x, skip_0)
         # PrintLayer()(x)
 
