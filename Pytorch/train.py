@@ -183,7 +183,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                         ax2.imshow(pred_img)
                         ax2.set_title(f"{metrics['F1'].item()} - epoch {epoch}")
                         # print(dest_path)
-                        plt.savefig(f"{training_folder}/checkpoints"}/{metrics['F1'].item()} - epoch {epoch}.png")
+                        plt.savefig(f"{training_folder}/checkpoints/{metrics['F1'].item()} - epoch {epoch}.png")
 
                     # print("[INFO] Unique labels in this prediction: ", torch.unique(pred_argmax))
 
