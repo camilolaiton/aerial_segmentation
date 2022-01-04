@@ -60,10 +60,12 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
                 )
 
                 if save_img and metrics['F1'].item() >= 0.80:
+                    imgs_np = imgs.cpu().numpy()
                     pred_np = pred_argmax.cpu().numpy()
                     msk_np = mask_argmax.cpu().numpy()
                     
                     # Squeezing in first dim
+                    imgs_np = np.squeeze(imgs_np, axis=0)
                     pred_np = np.squeeze(pred_np, axis=0)
                     msk_np = np.squeeze(msk_np, axis=0)
 
@@ -71,7 +73,7 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
                     msk_img = palette[msk_np]
                     fig, (ax0, ax1, ax2) = plt.subplots(1, 3)
                     fig.suptitle("Original mask VS Predicted")
-                    ax0.imshow(imgs)
+                    ax0.imshow(imgs_np)
                     ax0.set_title(f"orig image")
                     ax1.imshow(msk_img)
                     ax1.set_title(f"mask image")
