@@ -29,7 +29,7 @@ def get_config():
             'dim': 32,
             'proj_kernel':3,
             'kv_proj_stride':2,
-            'depth':1,
+            'depth':2,
             'heads':1,
             'mlp_mult':4,
             'dropout':0.1
@@ -38,8 +38,8 @@ def get_config():
             'dim': 32,
             'proj_kernel':3,
             'kv_proj_stride':2,
-            'depth':1,
-            'heads':1,
+            'depth':4,
+            'heads':4,
             'mlp_mult':4,
             'dropout':0.1
         },
