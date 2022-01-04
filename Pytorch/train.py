@@ -60,8 +60,9 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
                 )
 
                 if save_img and metrics['F1'].item() >= 0.80:
-                    imgs_np = (imgs.permute(0, 2,3,1)).cpu().numpy()*255
-                    print(imgs_np.shape)
+                    imgs_np = (imgs.permute(0, 2,3,1)).cpu().numpy()
+                    imgs_np = (imgs_np * 255).astype(np.uint8)
+                    
                     pred_np = pred_argmax.cpu().numpy()
                     msk_np = mask_argmax.cpu().numpy()
                     
@@ -244,7 +245,7 @@ def get_training_augmentation():
 def get_validation_augmentation():   
     # Add sufficient padding to ensure image is divisible by 32
     test_transform = [        
-        album.CenterCrop (height=256, width=256, always_apply=True)        
+        album.CenterCrop (height=1024, width=1024, always_apply=True)        
     ]
     return album.Compose(test_transform)
 
