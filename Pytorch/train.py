@@ -45,7 +45,7 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
     model.eval()
     with torch.no_grad():
         with tqdm(test_loader, unit='batch', position=0, leave=True) as tbatch:
-            for i, (imgs, msks) in enumerate(tbatch):
+            for idx, (imgs, msks) in enumerate(tbatch):
                 imgs = imgs.to(device)
                 msks = msks.to(device)
 
@@ -80,7 +80,7 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
                     ax2.imshow(pred_img)
                     ax2.set_title(f"{round(metrics['F1'].item(), 2)} - epoch {epoch}")
                     # print(dest_path)
-                    plt.savefig(f"{dest_path}/image: {i} - F1: {round(metrics['F1'].item(), 2)} - epoch {epoch}.png")
+                    plt.savefig(f"{dest_path}/image_{idx}_F1_{round(metrics['F1'].item(), 2)}_epoch_{epoch}.png")
 
                 # print("[INFO] Unique labels in this prediction: ", torch.unique(pred_argmax))
 
