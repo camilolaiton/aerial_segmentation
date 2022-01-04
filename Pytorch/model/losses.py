@@ -41,9 +41,9 @@ class DiceLoss(nn.Module):
             # if (weights is not None):
             #     intersection = torch.mean(weights * intersection)
 
-            loss = - (2.0 * intersection + self.smooth) / (iflat.sum() + tflat.sum() + self.smooth)
+            loss = (2.0 * intersection + self.smooth) / (iflat.sum() + tflat.sum() + self.smooth)
 
-        return loss
+        return 1 - loss
 
 ALPHA = 0.5 # < 0.5 penalises FP more, > 0.5 penalises FN more
 CE_RATIO = 0.5 #weighted contribution of modified CE loss compared to Dice loss
