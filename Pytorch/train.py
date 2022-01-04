@@ -60,29 +60,27 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
                 )
 
                 if save_img and metrics['F1'].item() >= 0.80:
-                    imgs_np = (imgs.permute(0, 2,3,1)).cpu().numpy()
-                    imgs_np = (imgs_np * 255).astype(np.uint8)
+                    # imgs_np = (imgs.permute(0, 2,3,1)).cpu().numpy()
+                    # imgs_np = (imgs_np * 255).astype(np.uint8)
                     
                     pred_np = pred_argmax.cpu().numpy()
                     msk_np = mask_argmax.cpu().numpy()
                     
                     # Squeezing in first dim
-                    imgs_np = np.squeeze(imgs_np, axis=0)
+                    # imgs_np = np.squeeze(imgs_np, axis=0)
                     pred_np = np.squeeze(pred_np, axis=0)
                     msk_np = np.squeeze(msk_np, axis=0)
 
                     pred_img = palette[pred_np]
                     msk_img = palette[msk_np]
-                    fig, (ax0, ax1, ax2) = plt.subplots(1, 3)
+                    fig, (ax1, ax2) = plt.subplots(1, 2)
                     fig.suptitle("Original mask VS Predicted")
-                    ax0.imshow(imgs_np)
-                    ax0.set_title(f"orig image")
                     ax1.imshow(msk_img)
                     ax1.set_title(f"mask image")
                     ax2.imshow(pred_img)
                     ax2.set_title(f"{round(metrics['F1'].item(), 2)} - epoch {epoch}")
                     # print(dest_path)
-                    plt.savefig(f"{dest_path}/{round(metrics['F1'].item(), 2)} - epoch {epoch}.png")
+                    plt.savefig(f"{dest_path}/image: {i} - F1: {round(metrics['F1'].item(), 2)} - epoch {epoch}.png")
 
                 # print("[INFO] Unique labels in this prediction: ", torch.unique(pred_argmax))
 
