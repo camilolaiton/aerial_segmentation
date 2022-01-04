@@ -132,7 +132,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
         # Recall(num_classes=config.num_classes, average=average, mdmc_average=mdmc_avg).to(device),
     ])
 
-    loss_fn = FocalTverskyLoss()#FocalDiceLoss()#FocalLoss()#DiceLoss()#DiceBCELoss()
+    loss_fn = FocalDiceLoss()#FocalLoss()#DiceLoss()#DiceBCELoss()
     optimizer = torch.optim.Adam(
         model.parameters(), 
         lr=config.learning_rate,
