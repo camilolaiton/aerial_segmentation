@@ -245,7 +245,7 @@ def get_training_augmentation():
 def get_validation_augmentation():   
     # Add sufficient padding to ensure image is divisible by 32
     test_transform = [        
-        album.CenterCrop (height=600, width=600, always_apply=True)        
+        album.CenterCrop (height=512, width=512, always_apply=True)        
     ]
     return album.Compose(test_transform)
 
