@@ -62,6 +62,10 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
                 if save_img:
                     pred_np = pred_argmax.cpu().numpy()
                     msk_np = mask_argmax.cpu().numpy()
+                    
+                    # Squeezing in first dim
+                    pred_np = np.squeeze(pred_np, axis=0)
+                    msk_np = np.squeeze(msk_np, axis=0)
 
                     pred_img = palette[pred_np]
                     msk_img = palette[msk_np]
