@@ -76,7 +76,7 @@ class FocalDiceLoss(nn.Module):
         self.dice = DiceLoss()
 
     def forward(self, input, target, weights=None):
-        dc_loss = - self.dice(input, target, weights)
+        dc_loss = self.dice(input, target, weights)
         fc_loss = self.focal(input, target)
 
         # used to fine tune beta
