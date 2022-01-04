@@ -18,10 +18,10 @@ def get_config():
     config.transformers = [
         {
             'dim': 32,
-            'proj_kernel':3,
+            'proj_kernel':5,
             'kv_proj_stride':2,
-            'depth':2,
-            'heads':2,
+            'depth':1,
+            'heads':1,
             'mlp_mult':4,
             'dropout':0.1
         },
