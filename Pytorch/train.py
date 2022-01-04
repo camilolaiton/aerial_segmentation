@@ -60,7 +60,7 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
                 )
 
                 if save_img and metrics['F1'].item() >= 0.80:
-                    imgs_np = imgs.cpu().numpy()
+                    imgs_np = (imgs.permute(1,2,0)).cpu().numpy()
                     pred_np = pred_argmax.cpu().numpy()
                     msk_np = mask_argmax.cpu().numpy()
                     
