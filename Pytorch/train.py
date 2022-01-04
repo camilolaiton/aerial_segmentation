@@ -39,15 +39,15 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
     writer = SummaryWriter(training_folder)
     step = 0
 
-    model = CvT()#CvTModified(config=config)
+    model = CvTModified(config=config)
 
-    # torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.benchmark = True
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("DEVICE: ", device)
-    # if torch.cuda.device_count() > 1:
-    #     print(f"[INFO] Using {torch.cuda.device_count()} GPUs!")
-    #     # model = torch.nn.DistributedDataParallel(model, device_ids=[gpu], output_device=gpu, find_unused_parameters=True)
-    #     model = torch.nn.DataParallel(model)
+    if torch.cuda.device_count() > 1:
+        print(f"[INFO] Using {torch.cuda.device_count()} GPUs!")
+        # model = torch.nn.DistributedDataParallel(model, device_ids=[gpu], output_device=gpu, find_unused_parameters=True)
+        model = torch.nn.DataParallel(model)
 
     model.to(device)
     trainable_params, total_params = count_params(model)
@@ -90,6 +90,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
         
         running_loss = 0.0
         f1 = []
+        last_idx = 0
 
         with tqdm(train_loader, unit='batch', position=0, leave=True) as tbatch:
             for idx, (imgs, msks) in enumerate(train_loader):
@@ -99,7 +100,6 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                 preds = model(imgs)
                 loss = loss_fn(preds, msks)
 
-                writer.add_scalar("Training Loss", loss.item(), global_step=step)
                 step += 1
 
                 optimizer.zero_grad()
@@ -114,6 +114,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                 )
 
                 f1.append(metrics['F1'].item())
+                last_idx = idx
 
                 tbatch.set_description("Training")
                 tbatch.set_postfix({
@@ -127,6 +128,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                 tbatch.update()
                 sleep(0.01)
 
+        writer.add_scalar("Training Loss", running_loss/(last_idx+1), global_step=step)
         writer.add_scalar('F1_Score/train', np.mean(f1), epoch)
 
         if save_model:

@@ -1,5 +1,5 @@
 from torch import nn
-from .blocks import *
+from blocks import *
 
 class CvTModified(nn.Module):
     def __init__(self, config):
