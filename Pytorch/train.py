@@ -69,8 +69,10 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
 
                     pred_img = palette[pred_np]
                     msk_img = palette[msk_np]
-                    fig, (ax1, ax2) = plt.subplots(1, 2)
+                    fig, (ax0, ax1, ax2) = plt.subplots(1, 3)
                     fig.suptitle("Original mask VS Predicted")
+                    ax0.imshow(imgs)
+                    ax0.set_title(f"orig image")
                     ax1.imshow(msk_img)
                     ax1.set_title(f"mask image")
                     ax2.imshow(pred_img)
@@ -239,7 +241,7 @@ def get_training_augmentation():
 def get_validation_augmentation():   
     # Add sufficient padding to ensure image is divisible by 32
     test_transform = [        
-        album.CenterCrop (height=512, width=512, always_apply=True)        
+        album.CenterCrop (height=256, width=256, always_apply=True)        
     ]
     return album.Compose(test_transform)
 
