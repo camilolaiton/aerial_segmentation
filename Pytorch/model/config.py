@@ -26,20 +26,20 @@ def get_config():
             'dropout':0.1
         },
         {
-            'dim': 64,
+            'dim': 32,
             'proj_kernel':3,
             'kv_proj_stride':2,
-            'depth':1,
-            'heads':1,
+            'depth':2,
+            'heads':2,
             'mlp_mult':4,
             'dropout':0.1
         },
         {
-            'dim': 128,
+            'dim': 32,
             'proj_kernel':3,
             'kv_proj_stride':2,
-            'depth':1,
-            'heads':1,
+            'depth':2,
+            'heads':2,
             'mlp_mult':4,
             'dropout':0.1
         },

@@ -4,18 +4,18 @@ from .blocks import *
 class CvTModified(nn.Module):
     def __init__(self, config):
         super().__init__()
-        print(config.transformers)
-        self.conv_16 = nn.Conv2d(
-            config.image_channels,
-            16,
+
+        self.conv_0 = nn.Conv2d(
+            in_channels=3,
+            out_channels=16,
             kernel_size=3,
-            padding='same',
+            padding=1,
             stride=1
         )
 
-        self.conv_16_norm = LayerNorm(16)
+        self.layerNorm0 = LayerNorm(16)
 
-        self.conv_32 = nn.Conv2d(
+        self.conv_1 = nn.Conv2d(
             in_channels=16,
             out_channels=config.transformers[0]['dim'],
             kernel_size=config.transformers[0]['proj_kernel'],
@@ -33,7 +33,7 @@ class CvTModified(nn.Module):
             dropout=config.transformers[0]['dropout']
         )
 
-        self.conv_64 = nn.Conv2d(
+        self.conv_2 = nn.Conv2d(
             in_channels=config.transformers[0]['dim'],
             out_channels=config.transformers[1]['dim'],
             kernel_size=config.transformers[1]['proj_kernel'],
@@ -51,7 +51,7 @@ class CvTModified(nn.Module):
             dropout=config.transformers[1]['dropout']
         )
 
-        self.conv_128 = nn.Conv2d(
+        self.conv_3 = nn.Conv2d(
             in_channels=config.transformers[1]['dim'],
             out_channels=config.transformers[2]['dim'],
             kernel_size=config.transformers[2]['proj_kernel'],
@@ -70,21 +70,21 @@ class CvTModified(nn.Module):
         )
 
         self.bottle_neck = nn.Sequential(
-            nn.Conv2d(128, 256, kernel_size=3, padding=1, stride=2),
-            nn.BatchNorm2d(256),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1, stride=2),
+            nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
-            nn.Conv2d(256, 256, kernel_size=3, padding=1, stride=1),
-            nn.BatchNorm2d(256),
+            nn.Conv2d(64, 64, kernel_size=3, padding=1, stride=1),
+            nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
         )
 
-        self.up_1 = UpSampleBlock(384, 128, config.normalization_rate)
+        self.up_1 = UpSampleBlock(96, 64, config.normalization_rate)
 
-        self.up_2 = UpSampleBlock(192, 64, config.normalization_rate)
+        self.up_2 = UpSampleBlock(96, 32, config.normalization_rate)
 
-        self.up_3 = UpSampleBlock(96, 32, config.normalization_rate)
+        self.up_3 = UpSampleBlock(64, 16, config.normalization_rate)
 
-        self.up_4 = UpSampleBlock(48, 16, config.normalization_rate)
+        self.up_4 = UpSampleBlock(32, 16, config.normalization_rate)
 
         self.seg_head = SegmentationHead(16, config.num_classes)
 
@@ -92,41 +92,42 @@ class CvTModified(nn.Module):
     def forward(self, x):
 
         # Input: N, 1, 256, 256 | output: N, 16, 256, 256
-        skip_0 = self.conv_16(x)
-        x = self.conv_16_norm(skip_0)
+        x = self.conv_0(x)
+        skip_0 = self.layerNorm0(x)
+        # PrintLayer()(skip_0)
 
         # Input: N, 16, 256, 256 | output: N, 32, 128, 128
-        skip_1 = self.conv_32(x)
+        skip_1 = self.conv_1(skip_0)
         x = self.att_1(skip_1)
         # PrintLayer()(x)
 
-        # Input: N, 32, 128, 128 | output: N, 64, 64, 64
-        skip_2 = self.conv_64(x)
+        # Input: N, 32, 128, 128 | output: N, 32, 64, 64
+        skip_2 = self.conv_2(x)
         x = self.att_2(skip_2)
         # PrintLayer()(x)
 
-        # Input: N, 64, 64, 64 | output: N, 128, 32, 32
-        skip_3 = self.conv_128(x)
+        # Input: N, 32, 64, 64 | output: N, 32, 32, 32
+        skip_3 = self.conv_3(x)
         x = self.att_3(skip_3)
         # PrintLayer()(x)
 
-        # Input: N, 128, 32, 32 | output: N, 256, 16, 16
+        # Input: N, 32, 32, 32 | output: N, 64, 16, 16
         x = self.bottle_neck(x)
         # PrintLayer()(x)
 
-        # Input: N, 256, 16, 16 | output: N, 128, 32, 32
+        # Input: N, 64, 16, 16 | output: N, 64, 32, 32
         x = self.up_1(x, skip_3)
         # PrintLayer()(x)
 
-        # Input: N, 128, 32, 32 | output: N, 64, 64, 64
+        # Input: N, 64, 32, 32 | output: N, 32, 64, 64
         x = self.up_2(x, skip_2)
         # PrintLayer()(x)
 
-        # Input: N, 64, 64, 64 | output: N, 32, 128, 128
+        # Input: N, 128, 64, 64 | output: N, 16, 128, 128
         x = self.up_3(x, skip_1)
         # PrintLayer()(x)
 
-        # Input: N, 32, 128, 128 | output: N, 16, 256, 256
+        # Input: N, 16, 128, 128 | output: N, 16, 256, 256
         x = self.up_4(x, skip_0)
         # PrintLayer()(x)
 
@@ -135,7 +136,6 @@ class CvTModified(nn.Module):
         # PrintLayer()(x)
 
         return x
-
 
 class CvT(nn.Module):
     def __init__(

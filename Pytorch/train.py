@@ -4,7 +4,7 @@ import torch
 from utils import utils
 from torch.utils.data import DataLoader
 from model.config import get_config
-from model.network import CvTModified, CvT
+from model.network import CvTModified
 from model.losses import *
 from model.MassachusettsDataset import *
 from tqdm import tqdm
@@ -39,7 +39,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
     writer = SummaryWriter(training_folder)
     step = 0
 
-    model = CvT()#CvTModified(config=config)
+    model = CvTModified(config=config)
 
     torch.backends.cudnn.benchmark = True
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
