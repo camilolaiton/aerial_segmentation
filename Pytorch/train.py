@@ -166,7 +166,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                         pred_argmax, 
                         mask_argmax
                     )
-                    print("[INFO] Unique labels in this prediction: ", torch.unique(pred_argmax))
+                    # print("[INFO] Unique labels in this prediction: ", torch.unique(pred_argmax))
 
                     accuracy.append(metrics['Accuracy'].item())
                     f1.append(metrics['F1'].item())

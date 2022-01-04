@@ -30,7 +30,7 @@ def get_config():
             'proj_kernel':3,
             'kv_proj_stride':2,
             'depth':2,
-            'heads':2,
+            'heads':4,
             'mlp_mult':4,
             'dropout':0.1
         },
