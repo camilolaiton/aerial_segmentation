@@ -109,7 +109,7 @@ class MassachusettsBuildingsDataset(torch.utils.data.Dataset):
         #fname = self.image_paths[i]
         
         # one-hot-encode the mask
-        mask = one_hot_encode(mask, self.class_rgb_values).astype('int8')
+        mask = one_hot_encode(mask, self.class_rgb_values).astype('uint8')
         
         # apply augmentations
         if self.augmentation:
