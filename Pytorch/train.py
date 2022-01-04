@@ -295,7 +295,7 @@ def main():
 
     num_workers = 2#os.cpu_count()
     train_loader = DataLoader(data_train_loader, batch_size=config.batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
-    test_loader = DataLoader(data_test_loader, batch_size=config.batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
+    test_loader = DataLoader(data_test_loader, batch_size=1, shuffle=False, num_workers=num_workers, pin_memory=True)
 
     random_idx = random.randint(0, len(data_train_loader)-1)
     image, mask = data_train_loader[random_idx]
