@@ -91,7 +91,7 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
 
                 tbatch.set_description("Testing")
                 tbatch.set_postfix({
-                    'Batch': f"{i+1}",
+                    'Batch': f"{idx+1}",
                     # 'Accuracy': np.mean(accuracy),
                     'F1': np.mean(f1),
                     # 'Recall': np.mean(recall),
