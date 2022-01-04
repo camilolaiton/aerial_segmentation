@@ -76,7 +76,7 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
                     ax2.imshow(pred_img)
                     ax2.set_title(f"{round(metrics['F1'].item(), 2)} - epoch {epoch}")
                     # print(dest_path)
-                    plt.savefig(f"{dest_path}/{metrics['F1'].item()} - epoch {epoch}.png")
+                    plt.savefig(f"{dest_path}/{round(metrics['F1'].item(), 2)} - epoch {epoch}.png")
 
                 # print("[INFO] Unique labels in this prediction: ", torch.unique(pred_argmax))
 
