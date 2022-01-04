@@ -63,7 +63,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
         Recall(num_classes=config.num_classes, average=average, mdmc_average=mdmc_avg).to(device),
     ])
 
-    loss = DiceBCELoss()
+    loss_fn = DiceBCELoss()
     optimizer = torch.optim.Adam(
         model.parameters(), 
         lr=config.learning_rate,
@@ -97,7 +97,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                 msks = msks.to(device)
 
                 preds = model(imgs)
-                loss = loss(preds, msks)
+                loss = loss_fn(preds, msks)
 
                 writer.add_scalar("Training Loss", loss.item(), global_step=step)
                 step += 1
