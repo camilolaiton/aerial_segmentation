@@ -83,6 +83,8 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
     model.train()
 
     print("[INFO] Starting training!")
+    best_loss = 100
+
     if load_model:
         step = load_checkpoint(torch.load(model_path), model, optimizer)
 
@@ -131,13 +133,17 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
         writer.add_scalar("Training Loss", running_loss/(last_idx+1), global_step=step)
         writer.add_scalar('F1_Score/train', np.mean(f1), epoch)
 
-        if save_model:
-            checkpoint = {
-                "state_dict": model.state_dict(),
-                "optimizer": optimizer.state_dict(),
-                "step": step,
-            }
-            save_checkpoint(checkpoint, filename=model_path)
+        if (best_loss > running_loss):
+            best_loss = running_loss
+            best_epoch = epoch
+            if save_model:
+                print(f"Saving best model in epoch {best_epoch} with loss {best_loss}")
+                checkpoint = {
+                    "state_dict": model.state_dict(),
+                    "optimizer": optimizer.state_dict(),
+                    "step": step,
+                }
+                save_checkpoint(checkpoint, filename=model_path)
 
         f1 = []
         accuracy = []
