@@ -15,6 +15,12 @@ import random
 import os
 import pandas as pd
 import albumentations as album
+import matplotlib.pyplot as plt
+
+palette = np.array([
+    [  0,   0,   0],   # black
+    [255,   255,   255],
+])
 
 def count_params(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad), sum(p.numel() for p in model.parameters())
@@ -29,6 +35,62 @@ def load_checkpoint(checkpoint, model, optimizer):
 def save_checkpoint(state, filename="my_checkpoint.pth.tar"):
     print("[+] Saving checkpoint")
     torch.save(state, filename)
+
+def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest_path, save_img=True):
+    f1 = []
+    # accuracy = []
+    # precision = []
+    # recall = []
+
+    model.eval()
+    with torch.no_grad():
+        with tqdm(test_loader, unit='batch', position=0, leave=True) as tbatch:
+            for i, (imgs, msks) in enumerate(tbatch):
+                imgs = imgs.to(device)
+                msks = msks.to(device)
+
+                pred = model(imgs)
+
+                pred_argmax = torch.argmax(pred, dim=1)
+                mask_argmax = torch.argmax(msks, dim=1)
+                
+                metrics = metric_collection(
+                    pred_argmax, 
+                    mask_argmax
+                )
+
+                if save_img:
+                    pred_img = palette[pred_argmax]
+                    msk_img = palette[mask_argmax]
+                    fig, (ax1, ax2) = plt.subplots(1, 2)
+                    fig.suptitle("Original mask VS Predicted")
+                    ax1.imshow(msk_img)
+                    ax1.set_title(f"mask image")
+                    ax2.imshow(pred_img)
+                    ax2.set_title(f"{metrics['F1'].item()} - epoch {epoch}")
+                    # print(dest_path)
+                    plt.savefig(f"{dest_path}/{metrics['F1'].item()} - epoch {epoch}.png")
+
+                # print("[INFO] Unique labels in this prediction: ", torch.unique(pred_argmax))
+
+                # accuracy.append(metrics['Accuracy'].item())
+                f1.append(metrics['F1'].item())
+                # recall.append(metrics['Recall'].item())
+                # precision.append(metrics['Precision'].item())
+
+                tbatch.set_description("Training")
+                tbatch.set_postfix({
+                    'Batch': f"{i+1}",
+                    # 'Accuracy': np.mean(accuracy),
+                    'F1': np.mean(f1),
+                    # 'Recall': np.mean(recall),
+                    # 'Precision': np.mean(precision),
+                })
+                tbatch.update()
+                sleep(0.01)
+
+        writer.add_scalar('F1_Score/test', np.mean(f1), epoch)
+    model.train()
 
 def train(config:dict, load_model:bool, save_model:bool, training_folder:str, train_loader, test_loader):
 
@@ -123,7 +185,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                     'Epoch batch': f"{epoch}-{idx+1}",
                     'Loss': running_loss/(idx+1),
                     # 'Accuracy': metrics['Accuracy'].item(),
-                    'F1': metrics['F1'].item(),
+                    'F1': np.mean(metrics['F1'].item()),
                     # 'Recall': metrics['Recall'].item(),
                     # 'Precision': metrics['Precision'].item(),
                 })
@@ -145,47 +207,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                 }
                 save_checkpoint(checkpoint, filename=model_path)
 
-        f1 = []
-        # accuracy = []
-        # precision = []
-        # recall = []
-
-        model.eval()
-        with torch.no_grad():
-            with tqdm(test_loader, unit='batch', position=0, leave=True) as tbatch:
-                for i, (imgs, msks) in enumerate(tbatch):
-                    imgs = imgs.to(device)
-                    msks = msks.to(device)
-
-                    pred = model(imgs)
-
-                    pred_argmax = torch.argmax(pred, dim=1)
-                    mask_argmax = torch.argmax(msks, dim=1)
-                    
-                    metrics = metric_collection(
-                        pred_argmax, 
-                        mask_argmax
-                    )
-                    # print("[INFO] Unique labels in this prediction: ", torch.unique(pred_argmax))
-
-                    # accuracy.append(metrics['Accuracy'].item())
-                    f1.append(metrics['F1'].item())
-                    # recall.append(metrics['Recall'].item())
-                    # precision.append(metrics['Precision'].item())
-
-                    tbatch.set_description("Training")
-                    tbatch.set_postfix({
-                        'Batch': f"{i+1}",
-                        # 'Accuracy': np.mean(accuracy),
-                        'F1': np.mean(f1),
-                        # 'Recall': np.mean(recall),
-                        # 'Precision': np.mean(precision),
-                    })
-                    tbatch.update()
-                    sleep(0.01)
-
-            writer.add_scalar('F1_Score/test', np.mean(f1), epoch)
-        model.train()
+        eval_step(model, test_loader, device, metric_collection, writer, epoch, f"{training_folder}/checkpoints", save_img=True)
 
     writer.close()
 
