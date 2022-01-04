@@ -153,7 +153,7 @@ class CvT(nn.Module):
         super().__init__()
         kwargs = dict(locals())
 
-        dim_input = 1
+        dim_input = 3
         layers = []
 
         #Attention path
