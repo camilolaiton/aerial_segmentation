@@ -57,10 +57,10 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
     average = 'micro'
     mdmc_avg = 'samplewise'
     metric_collection = MetricCollection([
-        Accuracy().to(device),
+        # Accuracy().to(device),
         F1(num_classes=config.num_classes, average=average, mdmc_average=mdmc_avg).to(device),
-        Precision(num_classes=config.num_classes, average=average, mdmc_average=mdmc_avg).to(device),
-        Recall(num_classes=config.num_classes, average=average, mdmc_average=mdmc_avg).to(device),
+        # Precision(num_classes=config.num_classes, average=average, mdmc_average=mdmc_avg).to(device),
+        # Recall(num_classes=config.num_classes, average=average, mdmc_average=mdmc_avg).to(device),
     ])
 
     loss_fn = DiceBCELoss()
@@ -122,10 +122,10 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                 tbatch.set_postfix({
                     'Epoch batch': f"{epoch}-{idx+1}",
                     'Loss': running_loss/(idx+1),
-                    'Accuracy': metrics['Accuracy'].item(),
+                    # 'Accuracy': metrics['Accuracy'].item(),
                     'F1': metrics['F1'].item(),
-                    'Recall': metrics['Recall'].item(),
-                    'Precision': metrics['Precision'].item(),
+                    # 'Recall': metrics['Recall'].item(),
+                    # 'Precision': metrics['Precision'].item(),
                 })
                 tbatch.update()
                 sleep(0.01)
@@ -146,9 +146,9 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                 save_checkpoint(checkpoint, filename=model_path)
 
         f1 = []
-        accuracy = []
-        precision = []
-        recall = []
+        # accuracy = []
+        # precision = []
+        # recall = []
 
         model.eval()
         with torch.no_grad():
@@ -168,18 +168,18 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                     )
                     # print("[INFO] Unique labels in this prediction: ", torch.unique(pred_argmax))
 
-                    accuracy.append(metrics['Accuracy'].item())
+                    # accuracy.append(metrics['Accuracy'].item())
                     f1.append(metrics['F1'].item())
-                    recall.append(metrics['Recall'].item())
-                    precision.append(metrics['Precision'].item())
+                    # recall.append(metrics['Recall'].item())
+                    # precision.append(metrics['Precision'].item())
 
                     tbatch.set_description("Training")
                     tbatch.set_postfix({
                         'Batch': f"{i+1}",
-                        'Accuracy': np.mean(accuracy),
+                        # 'Accuracy': np.mean(accuracy),
                         'F1': np.mean(f1),
-                        'Recall': np.mean(recall),
-                        'Precision': np.mean(precision),
+                        # 'Recall': np.mean(recall),
+                        # 'Precision': np.mean(precision),
                     })
                     tbatch.update()
                     sleep(0.01)
