@@ -60,8 +60,8 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
                 )
 
                 if save_img:
-                    pred_np = pred_argmax.numpy().cpu()
-                    msk_np = mask_argmax.numpy().cpu()
+                    pred_np = pred_argmax.cpu().numpy()
+                    msk_np = mask_argmax.cpu().numpy()
 
                     pred_img = palette[pred_np]
                     msk_img = palette[msk_np]
@@ -188,7 +188,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                     'Epoch batch': f"{epoch}-{idx+1}",
                     'Loss': running_loss/(idx+1),
                     # 'Accuracy': metrics['Accuracy'].item(),
-                    'F1': np.mean(metrics['F1'].item()),
+                    'F1': np.mean(f1),
                     # 'Recall': metrics['Recall'].item(),
                     # 'Precision': metrics['Precision'].item(),
                 })
