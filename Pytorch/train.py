@@ -59,7 +59,7 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
                     mask_argmax
                 )
 
-                if save_img and metrics['F1'].item() >= 75:
+                if save_img and metrics['F1'].item() >= 0.80:
                     pred_np = pred_argmax.cpu().numpy()
                     msk_np = mask_argmax.cpu().numpy()
                     
