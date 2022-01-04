@@ -153,12 +153,14 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
         model.eval()
         with torch.no_grad():
             with tqdm(test_loader, unit='batch', position=0, leave=True) as tbatch:
-                for i, data in enumerate(tbatch):
-                    image, mask = data['image'].to(device), data['mask'].to(device)
-                    pred = model(image)
+                for i, (imgs, msks) in enumerate(tbatch):
+                    imgs = imgs.to(device)
+                    msks = msks.to(device)
+
+                    pred = model(imgs)
 
                     pred_argmax = torch.argmax(pred, dim=1)
-                    mask_argmax = torch.argmax(mask, dim=1)
+                    mask_argmax = torch.argmax(msks, dim=1)
                     
                     metrics = metric_collection(
                         pred_argmax, 
