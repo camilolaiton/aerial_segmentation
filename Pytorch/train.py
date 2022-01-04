@@ -85,7 +85,7 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
                 # recall.append(metrics['Recall'].item())
                 # precision.append(metrics['Precision'].item())
 
-                tbatch.set_description("Training")
+                tbatch.set_description("Testing")
                 tbatch.set_postfix({
                     'Batch': f"{i+1}",
                     # 'Accuracy': np.mean(accuracy),

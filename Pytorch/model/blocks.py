@@ -203,3 +203,105 @@ class SegmentationHead(nn.Sequential):
             conv, 
             activation
         )
+
+class ConvolutionalBlock(nn.Sequential):
+    def __init__(self, in_channels, out_channels, kernel_size, strides, padding):
+
+        conv = nn.Conv2d(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            stride=strides,
+            padding=padding,
+        )
+        
+        activation = nn.LeakyReLU()
+        bn = nn.BatchNorm2d(out_channels)
+
+        super(ConvolutionalBlock, self).__init__(
+            conv, 
+            activation, 
+            bn
+        )
+
+class ConnectionComponents(nn.Module):
+    def __init__(self, in_channels, out_channels, norm_rate, kernel_size=3, strides=1):
+        super(ConnectionComponents, self).__init__()
+
+        self.conv_1 = nn.Conv2d(
+            in_channels=in_channels,
+            out_channels=1,
+            kernel_size=1,
+            stride=1,
+            padding='same'
+        )
+
+        self.conv_2 = nn.Conv2d(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            stride=strides,
+            padding='same'
+        )
+
+        self.activation_1 = nn.LeakyReLU()
+        self.activation_2 = nn.LeakyReLU()
+
+        self.bach_norm_1 = nn.BatchNorm2d(1, eps=norm_rate)
+        self.bach_norm_2 = nn.BatchNorm2d(out_channels, eps=norm_rate)
+        self.bach_norm_3 = nn.BatchNorm2d(out_channels, eps=norm_rate)
+
+    def forward(self, x):
+        shortcut = x
+        path_1 = self.conv_1(shortcut)
+        path_1 = self.bach_norm_1(path_1)
+        
+        # conv 3x3
+        path_2 = self.conv_2(x)
+        path_2 = self.bach_norm_2(path_2)
+        path_2 = self.activation_2(path_2)
+
+        # add layer
+        out = path_1 + path_2
+        out = self.activation_1(out)
+        out = self.bach_norm_3(out)
+        return out
+
+class EncoderDecoderConnections(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size=3, norm_rate=1e-4):
+        super(EncoderDecoderConnections, self).__init__()
+
+        self.con_comp_1 = ConnectionComponents(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            norm_rate=norm_rate,
+            kernel_size=kernel_size,
+        )
+
+        self.con_comp_2 = ConnectionComponents(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            norm_rate=norm_rate,
+            kernel_size=kernel_size,
+        )
+
+        self.con_comp_3 = ConnectionComponents(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            norm_rate=norm_rate,
+            kernel_size=kernel_size,
+        )
+
+        self.con_comp_4 = ConnectionComponents(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            norm_rate=norm_rate,
+            kernel_size=kernel_size,
+        )
+
+    def forward(self, x):
+        x = self.con_comp_1(x)
+        x = self.con_comp_2(x)
+        x = self.con_comp_3(x)
+        x = self.con_comp_4(x)
+        return x

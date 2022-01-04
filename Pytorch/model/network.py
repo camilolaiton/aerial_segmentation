@@ -5,22 +5,20 @@ class CvTModified(nn.Module):
     def __init__(self, config):
         super().__init__()
 
-        self.conv_0 = nn.Conv2d(
+        self.conv_0 = ConvolutionalBlock(
             in_channels=3,
             out_channels=16,
             kernel_size=3,
             padding=1,
-            stride=1
+            strides=1
         )
 
-        self.layerNorm0 = LayerNorm(16)
-
-        self.conv_1 = nn.Conv2d(
+        self.conv_1 = ConvolutionalBlock(
             in_channels=16,
             out_channels=config.transformers[0]['dim'],
             kernel_size=config.transformers[0]['proj_kernel'],
             padding=(config.transformers[0]['proj_kernel']//2),
-            stride=config.transformers[0]['kv_proj_stride']
+            strides=config.transformers[0]['kv_proj_stride']
         )
 
         self.att_1 = Transformer(
@@ -33,12 +31,12 @@ class CvTModified(nn.Module):
             dropout=config.transformers[0]['dropout']
         )
 
-        self.conv_2 = nn.Conv2d(
+        self.conv_2 = ConvolutionalBlock(
             in_channels=config.transformers[0]['dim'],
             out_channels=config.transformers[1]['dim'],
             kernel_size=config.transformers[1]['proj_kernel'],
             padding=(config.transformers[1]['proj_kernel']//2),
-            stride=config.transformers[1]['kv_proj_stride']
+            strides=config.transformers[1]['kv_proj_stride']
         )
 
         self.att_2 = Transformer(
@@ -51,12 +49,12 @@ class CvTModified(nn.Module):
             dropout=config.transformers[1]['dropout']
         )
 
-        self.conv_3 = nn.Conv2d(
+        self.conv_3 = ConvolutionalBlock(
             in_channels=config.transformers[1]['dim'],
             out_channels=config.transformers[2]['dim'],
             kernel_size=config.transformers[2]['proj_kernel'],
             padding=(config.transformers[2]['proj_kernel']//2),
-            stride=config.transformers[2]['kv_proj_stride']
+            strides=config.transformers[2]['kv_proj_stride']
         )
 
         self.att_3 = Transformer(
