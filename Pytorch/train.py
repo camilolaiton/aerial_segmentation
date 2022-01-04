@@ -41,7 +41,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
 
     model = CvT()#CvTModified(config=config)
 
-    torch.backends.cudnn.benchmark = True
+    # torch.backends.cudnn.benchmark = True
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("DEVICE: ", device)
     # if torch.cuda.device_count() > 1:
@@ -77,7 +77,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
         optimizer, 
         T_0=1,
         T_mult=2,
-        eta_min=5e-5,
+        eta_min=5e-5, 
     )
 
     model.train()

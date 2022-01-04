@@ -7,7 +7,7 @@ def get_config():
 
     config = ml_collections.ConfigDict()
 
-    config.batch_size = 32
+    config.batch_size = 4
     config.num_epochs = 25
     config.image_height = 256
     config.image_width = 256
