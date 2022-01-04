@@ -90,8 +90,7 @@ class CvTModified(nn.Module):
     def forward(self, x):
 
         # Input: N, 1, 256, 256 | output: N, 16, 256, 256
-        x = self.conv_0(x)
-        skip_0 = self.layerNorm0(x)
+        skip_0 = self.conv_0(x)
         # PrintLayer()(skip_0)
 
         # Input: N, 16, 256, 256 | output: N, 32, 128, 128
