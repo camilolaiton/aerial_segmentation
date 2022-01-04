@@ -59,7 +59,7 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
                     mask_argmax
                 )
 
-                if save_img and metrics['F1'].item() > 85:
+                if save_img and metrics['F1'].item() >= 75:
                     pred_np = pred_argmax.cpu().numpy()
                     msk_np = mask_argmax.cpu().numpy()
                     
@@ -152,7 +152,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
     model.train()
 
     print("[INFO] Starting training!")
-    best_loss = 100
+    best_f1 = -1
 
     if load_model:
         step = load_checkpoint(torch.load(model_path), model, optimizer)
@@ -199,14 +199,17 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                 tbatch.update()
                 sleep(0.01)
 
+        actual_f1 = np.mean(f1)
         writer.add_scalar("Training Loss", running_loss/(last_idx+1), global_step=step)
-        writer.add_scalar('F1_Score/train', np.mean(f1), epoch)
+        writer.add_scalar('F1_Score/train', actual_f1, epoch)
+        save_imgs = False
 
-        if (best_loss > running_loss):
-            best_loss = running_loss
+        if (best_f1 < actual_f1):
+            best_f1 = actual_f1
             best_epoch = epoch
+            save_imgs = True
             if save_model:
-                print(f"Saving best model in epoch {best_epoch} with loss {best_loss}")
+                print(f"Saving best model in epoch {best_epoch} with loss {running_loss} and f1 {best_f1}")
                 checkpoint = {
                     "state_dict": model.state_dict(),
                     "optimizer": optimizer.state_dict(),
@@ -214,7 +217,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
                 }
                 save_checkpoint(checkpoint, filename=model_path)
 
-        eval_step(model, test_loader, device, metric_collection, writer, epoch, f"{training_folder}/checkpoints", save_img=True)
+        eval_step(model, test_loader, device, metric_collection, writer, epoch, f"{training_folder}/checkpoints", save_img=save_imgs)
 
     writer.close()
 
