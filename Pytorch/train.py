@@ -43,11 +43,11 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
 
     torch.backends.cudnn.benchmark = True
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    if torch.cuda.device_count() > 1:
-        print(f"[INFO] Using {torch.cuda.device_count()} GPUs!")
-        # model = torch.nn.DistributedDataParallel(model, device_ids=[gpu], output_device=gpu, find_unused_parameters=True)
-        model = torch.nn.DataParallel(model)
+    print("DEVICE: ", device)
+    # if torch.cuda.device_count() > 1:
+    #     print(f"[INFO] Using {torch.cuda.device_count()} GPUs!")
+    #     # model = torch.nn.DistributedDataParallel(model, device_ids=[gpu], output_device=gpu, find_unused_parameters=True)
+    #     model = torch.nn.DataParallel(model)
 
     model.to(device)
     trainable_params, total_params = count_params(model)
