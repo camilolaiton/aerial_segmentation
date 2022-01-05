@@ -105,15 +105,16 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
 
 def train(config:dict, load_model:bool, save_model:bool, training_folder:str, train_loader, test_loader):
 
-    utils.write_dict_to_txt(
-        config, 
-        f"{training_folder}/trained_architecture_config.txt"
-    )
-
     model_path = f"{training_folder}/model_trained_architecture.pt"
 
     # Creating folders for saving trainings
     utils.create_folder(f"{training_folder}/checkpoints")
+    
+    utils.write_dict_to_txt(
+        config, 
+        f"{training_folder}/trained_architecture_config.txt"
+    )
+    
     writer = SummaryWriter(training_folder)
     step = 0
 
