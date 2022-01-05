@@ -155,13 +155,16 @@ class UpSampleBlock(nn.Module):
 
         self.upsample = nn.Upsample(scale_factor=2, mode=up_mode, align_corners=True)
 
-    def forward(self, x, skip):
+    def forward(self, x, skip=None):
         # print("DEBUG")
         # PrintLayer()(x)
         # PrintLayer()(skip)
 
         x = self.upsample(x)
-        x = torch.cat([x, skip], dim=1)
+        
+        if skip != None:
+            x = torch.cat([x, skip], dim=1)
+        
         x = self.conv(x)
         x = self.batch_norm(x)
         return x

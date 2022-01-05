@@ -1,5 +1,146 @@
 from torch import nn
 from .blocks import *
+from torchvision import models
+
+class Encoder(nn.Module):
+    def __init__(self, trainCNN=False, skip_cnt_lyrs=[1, 4, 9, 14, 19]):
+        super(Encoder, self).__init__()
+        self.trainCNN = trainCNN
+        self.vgg11 = models.vgg11(pretrained=True)
+        self.skip_cnt_lyrs = skip_cnt_lyrs
+
+        self.vgg11.features = nn.Sequential(*list(self.vgg11.features.children())[:9])
+        self.vgg11.avgpool = nn.Sequential(*list(self.vgg11.avgpool.children())[:-1])
+        self.vgg11.classifier = nn.Sequential(*list(self.vgg11.classifier.children())[:-7])
+
+        self.__set_grad_layers(self.trainCNN)
+
+    def get_skip_layers(self):
+        # 64x256x256
+        # 128x128x128
+        # 256x64x64
+        # 512x32x32
+        # 512x16x16
+        return [self.vgg11.features[i] for i in self.skip_cnt_lyrs]
+
+    def __set_grad_layers(self, requires_grad=False):
+        for param in self.vgg11.parameters():
+            param.requires_grad = requires_grad
+
+    def forward(self, images):
+        features = self.vgg11.features(images)
+        return features
+
+class CvT_Vgg11(nn.Module):
+    def __init__(self, config):
+        super(CvT_Vgg11, self).__init__()
+
+        self.encoder = Encoder(config.train_CNN, config.skip_lyrs)
+
+        self.conv_1 = ConvolutionalBlock(
+            in_channels=256,
+            out_channels=config.transformers[0]['dim']*2,
+            kernel_size=config.transformers[0]['proj_kernel'],
+            padding=(config.transformers[0]['proj_kernel']//2),
+            strides=config.transformers[0]['kv_proj_stride']
+        )
+
+        self.conv_2 = ConvolutionalBlock(
+            in_channels=config.transformers[0]['dim']*2,
+            out_channels=config.transformers[0]['dim'],
+            kernel_size=config.transformers[0]['proj_kernel'],
+            padding=(config.transformers[0]['proj_kernel']//2),
+            strides=config.transformers[0]['kv_proj_stride']
+        )
+
+        self.att_1 = Transformer(
+            dim=config.transformers[0]['dim'],
+            proj_kernel=config.transformers[0]['proj_kernel'],
+            kv_proj_stride=config.transformers[0]['kv_proj_stride'],
+            depth=config.transformers[0]['depth'],
+            heads=config.transformers[0]['heads'],
+            mlp_mult=config.transformers[0]['mlp_mult'],
+            dropout=config.transformers[0]['dropout']
+        )
+
+        self.att_2 = Transformer(
+            dim=config.transformers[1]['dim'],
+            proj_kernel=config.transformers[1]['proj_kernel'],
+            kv_proj_stride=config.transformers[1]['kv_proj_stride'],
+            depth=config.transformers[1]['depth'],
+            heads=config.transformers[1]['heads'],
+            mlp_mult=config.transformers[1]['mlp_mult'],
+            dropout=config.transformers[1]['dropout']
+        )
+
+        self.att_3 = Transformer(
+            dim=config.transformers[2]['dim'],
+            proj_kernel=config.transformers[2]['proj_kernel'],
+            kv_proj_stride=config.transformers[2]['kv_proj_stride'],
+            depth=config.transformers[2]['depth'],
+            heads=config.transformers[2]['heads'],
+            mlp_mult=config.transformers[2]['mlp_mult'],
+            dropout=config.transformers[2]['dropout']
+        )
+
+        self.bottle_neck = nn.Sequential(
+            nn.Conv2d(32, 64, kernel_size=3, padding=1, stride=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(64, 64, kernel_size=3, padding=1, stride=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(64, 128, kernel_size=3, padding=1, stride=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+        )
+
+        self.up_1 = UpSampleBlock(128, 64, config.normalization_rate)
+
+        self.up_2 = UpSampleBlock(64, 32, config.normalization_rate)
+
+        self.up_3 = UpSampleBlock(32, 16, config.normalization_rate)
+
+        self.up_4 = UpSampleBlock(16, 8, config.normalization_rate)
+
+        self.seg_head = SegmentationHead(8, config.num_classes)
+
+    def forward(self, x):
+        x = self.encoder(x)
+        PrintLayer()(x)
+
+        # Feature maps projection
+        x = self.conv_1(x)
+        # PrintLayer()(x)
+        x = self.conv_2(x)
+        # PrintLayer()(x)
+
+        # attention
+        x = self.att_1(x)
+        # PrintLayer()(x)
+        x = self.att_2(x)
+        # PrintLayer()(x)
+        x = self.att_3(x)
+        # PrintLayer()(x)
+
+        x = self.bottle_neck(x)
+
+        x = self.up_1(x)
+        # PrintLayer()(x)
+
+        x = self.up_2(x)
+        # PrintLayer()(x)
+
+        x = self.up_3(x)
+        # PrintLayer()(x)
+        
+        x = self.up_4(x)
+        # PrintLayer()(x)
+
+        x = self.seg_head(x)
+        # PrintLayer()(x)
+        return x
+
 
 class CvTModified(nn.Module):
     def __init__(self, config):
@@ -310,14 +451,14 @@ def count_params(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad), sum(p.numel() for p in model.parameters())
 
 if __name__ == "__main__":
-    from config import get_config
+    from config import get_config, get_config_encoder
     image_size = 256
     channels = 3
     x = torch.Tensor(1, channels, image_size, image_size)
 
-    config = get_config()
-    model = CvTModified(config)#CvT()
+    config = get_config_encoder()
+    model = CvT_Vgg11(config)#CvTModified(config)#CvT()
     out = model(x)
     trainable_params, total_params = count_params(model)
-    print(model)
+    # print(model)
     print("Trainable params: ", trainable_params, " total params: ", total_params)

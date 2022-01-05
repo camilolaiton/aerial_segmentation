@@ -3,8 +3,8 @@ from torch.utils.tensorboard import SummaryWriter
 import torch
 from utils import utils
 from torch.utils.data import DataLoader
-from model.config import get_config
-from model.network import CvTModified, CvT
+from model.config import get_config, get_config_encoder
+from model.network import CvTModified, CvT, CvT_Vgg11
 from model.losses import *
 from model.MassachusettsDataset import *
 from tqdm import tqdm
@@ -118,7 +118,7 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
     writer = SummaryWriter(training_folder)
     step = 0
 
-    model = CvTModified(config=config)
+    model = CvT_Vgg11(config)#CvTModified(config=config)
 
     torch.backends.cudnn.benchmark = True
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -303,7 +303,7 @@ def main():
     training_folder = 'trainings/' + args['folder_name']
     
     # getting training config
-    config = get_config()
+    config = get_config_encoder()#get_config()
 
     # Defining dataset and data dirs
 
