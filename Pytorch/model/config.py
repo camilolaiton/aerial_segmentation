@@ -14,7 +14,8 @@ def get_config():
     config.image_channels = 3
     config.image_size = (config.image_height, config.image_width, config.image_channels)
     config.normalization_rate = 1e-4
-
+    config.loss_fn = 'dice_cross'
+    
     config.transformers = [
         {
             'dim': 32,

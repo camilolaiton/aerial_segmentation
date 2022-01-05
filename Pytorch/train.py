@@ -105,6 +105,11 @@ def eval_step(model, test_loader, device, metric_collection, writer, epoch, dest
 
 def train(config:dict, load_model:bool, save_model:bool, training_folder:str, train_loader, test_loader):
 
+    utils.write_dict_to_txt(
+        config, 
+        f"{training_folder}/trained_architecture_config.txt"
+    )
+
     model_path = f"{training_folder}/model_trained_architecture.pt"
 
     # Creating folders for saving trainings
@@ -136,7 +141,19 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
         # Recall(num_classes=config.num_classes, average=average, mdmc_average=mdmc_avg).to(device),
     ])
 
-    loss_fn = FocalLoss(gamma=2.5, alpha=0.2, eps=1e-4)#FocalDiceLoss(beta=1, gamma=2, alpha=0.2)#DiceLoss()#DiceBCELoss()
+    loss_fn = None
+
+    if 'focal_loss' == config.loss:
+        loss_fn = FocalLoss(gamma=2.5, alpha=0.2, eps=1e-4)
+    elif 'focal_dice' == config.loss:
+        loss_fn = FocalDiceLoss(beta=1, gamma=2, alpha=0.2)
+    elif 'dice_cross' == config.loss:
+        loss_fn = DiceBCELoss()
+    elif 'dice' == config.loss:
+        loss_fn = DiceLoss()
+    else:
+        exit("No loss function!")
+
     optimizer = torch.optim.Adam(
         model.parameters(), 
         lr=config.learning_rate,
