@@ -215,7 +215,7 @@ class ConvolutionalBlock(nn.Sequential):
             padding=padding,
         )
         
-        activation = nn.RReLU()
+        activation = nn.LeakyReLU()
         bn = nn.BatchNorm2d(out_channels)
 
         super(ConvolutionalBlock, self).__init__(

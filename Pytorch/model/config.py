@@ -24,7 +24,7 @@ def get_config():
             'depth':1,
             'heads':1,
             'mlp_mult':4,
-            'dropout':0.1
+            'dropout':0.0
         },
         {
             'dim': 32,
@@ -33,7 +33,7 @@ def get_config():
             'depth':2,
             'heads':4,
             'mlp_mult':4,
-            'dropout':0.1
+            'dropout':0.0
         },
         {
             'dim': 32,
@@ -42,7 +42,7 @@ def get_config():
             'depth':10,
             'heads':4,
             'mlp_mult':4,
-            'dropout':0.1
+            'dropout':0.0
         },
     ]
 

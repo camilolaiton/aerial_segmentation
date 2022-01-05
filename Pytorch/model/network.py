@@ -1,5 +1,5 @@
 from torch import nn
-from .blocks import *
+from blocks import *
 
 class CvTModified(nn.Module):
     def __init__(self, config):
@@ -8,13 +8,21 @@ class CvTModified(nn.Module):
         self.conv_0 = ConvolutionalBlock(
             in_channels=3,
             out_channels=16,
-            kernel_size=3,
-            padding=1,
+            kernel_size=7,
+            padding='same',
+            strides=1
+        )
+
+        self.conv_1_0 = ConvolutionalBlock(
+            in_channels=16,
+            out_channels=32,
+            kernel_size=5,
+            padding='same',
             strides=1
         )
 
         self.conv_1 = ConvolutionalBlock(
-            in_channels=16,
+            in_channels=32,
             out_channels=config.transformers[0]['dim'],
             kernel_size=config.transformers[0]['proj_kernel'],
             padding=(config.transformers[0]['proj_kernel']//2),
@@ -31,8 +39,16 @@ class CvTModified(nn.Module):
             dropout=config.transformers[0]['dropout']
         )
 
-        self.conv_2 = ConvolutionalBlock(
+        self.conv_2_0 = ConvolutionalBlock(
             in_channels=config.transformers[0]['dim'],
+            out_channels=config.transformers[1]['dim'],
+            kernel_size=config.transformers[1]['proj_kernel'],
+            padding=(config.transformers[1]['proj_kernel']//2),
+            strides=1
+        )
+
+        self.conv_2 = ConvolutionalBlock(
+            in_channels=config.transformers[1]['dim'],
             out_channels=config.transformers[1]['dim'],
             kernel_size=config.transformers[1]['proj_kernel'],
             padding=(config.transformers[1]['proj_kernel']//2),
@@ -49,8 +65,16 @@ class CvTModified(nn.Module):
             dropout=config.transformers[1]['dropout']
         )
 
-        self.conv_3 = ConvolutionalBlock(
+        self.conv_3_0 = ConvolutionalBlock(
             in_channels=config.transformers[1]['dim'],
+            out_channels=config.transformers[2]['dim'],
+            kernel_size=config.transformers[2]['proj_kernel'],
+            padding=(config.transformers[2]['proj_kernel']//2),
+            strides=1
+        )
+
+        self.conv_3 = ConvolutionalBlock(
+            in_channels=config.transformers[2]['dim'],
             out_channels=config.transformers[2]['dim'],
             kernel_size=config.transformers[2]['proj_kernel'],
             padding=(config.transformers[2]['proj_kernel']//2),
@@ -82,7 +106,7 @@ class CvTModified(nn.Module):
 
         self.up_3 = UpSampleBlock(64, 16, config.normalization_rate)
 
-        self.up_4 = UpSampleBlock(32, 16, config.normalization_rate)
+        self.up_4 = UpSampleBlock(48, 16, config.normalization_rate)
 
         self.seg_head = SegmentationHead(16, config.num_classes)
 
@@ -94,7 +118,8 @@ class CvTModified(nn.Module):
     def forward(self, x):
 
         # Input: N, 1, 256, 256 | output: N, 16, 256, 256
-        skip_0 = self.conv_0(x)
+        x = self.conv_0(x)
+        skip_0 = self.conv_1_0(x)
         # PrintLayer()(skip_0)
 
         # Input: N, 16, 256, 256 | output: N, 32, 128, 128
@@ -103,11 +128,13 @@ class CvTModified(nn.Module):
         # PrintLayer()(x)
 
         # Input: N, 32, 128, 128 | output: N, 32, 64, 64
+        x = self.conv_2_0(x)
         skip_2 = self.conv_2(x)
         x = self.att_2(skip_2)
         # PrintLayer()(x)
 
         # Input: N, 32, 64, 64 | output: N, 32, 32, 32
+        x = self.conv_3_0(x)
         skip_3 = self.conv_3(x)
         x = self.att_3(skip_3)
         # PrintLayer()(x)
