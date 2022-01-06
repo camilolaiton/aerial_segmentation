@@ -295,8 +295,8 @@ def main():
     parser.add_argument('--folder_name', metavar='folder', type=str,
                         help='Insert the folder for insights')
 
-    parser.add_argument('--lr_epoch_start', metavar='lr_decrease', type=int,
-                        help='Start epoch lr decrease', default=10)
+    parser.add_argument('--epochs', metavar='epochs', type=int,
+                        help='epochs', default=100)
     args = vars(parser.parse_args())
 
     retrain = args['retrain']
@@ -304,6 +304,7 @@ def main():
     
     # getting training config
     config = get_config_encoder()#get_config()
+    config.num_epochs = args['epochs']
 
     # Defining dataset and data dirs
 

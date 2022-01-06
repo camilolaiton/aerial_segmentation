@@ -69,7 +69,7 @@ def get_config_encoder():
     config = ml_collections.ConfigDict()
 
     config.batch_size = 4
-    config.num_epochs = 75
+    config.num_epochs = 100
     config.image_height = 256
     config.image_width = 256
     config.image_channels = 3
