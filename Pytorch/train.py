@@ -118,7 +118,8 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
     writer = SummaryWriter(training_folder)
     step = 0
 
-    model = CvT_Vgg11(config)#CvTModified(config=config)
+    model = CvTModified(config=config) # CvT_Vgg11(config)
+    print(model)
 
     torch.backends.cudnn.benchmark = True
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -146,8 +147,8 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
 
     if 'focal_loss' == config.loss:
         loss_fn = FocalLoss(gamma=2.5, alpha=0.2, eps=1e-4)
-    elif 'focal_dice' == config.loss:
-        loss_fn = FocalDiceLoss(beta=1, gamma=2, alpha=0.2)
+    elif 'dice_focal' == config.loss:
+        loss_fn = FocalDiceLoss()
     elif 'dice_cross' == config.loss:
         loss_fn = DiceBCELoss()
     elif 'dice' == config.loss:
@@ -296,15 +297,17 @@ def main():
                         help='Insert the folder for insights')
 
     parser.add_argument('--epochs', metavar='epochs', type=int,
-                        help='epochs', default=100)
+                        help='epochs', default=0)
     args = vars(parser.parse_args())
 
     retrain = args['retrain']
     training_folder = 'trainings/' + args['folder_name']
     
     # getting training config
-    config = get_config_encoder()#get_config()
-    config.num_epochs = args['epochs']
+    config = get_config()#get_config()
+    config.num_epochs = args['epochs'] if args['epochs'] else config.num_epochs
+
+    print("[+] Epochs: ", config.num_epochs)
 
     # Defining dataset and data dirs
 
