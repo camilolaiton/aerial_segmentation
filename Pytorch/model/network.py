@@ -472,8 +472,8 @@ if __name__ == "__main__":
     channels = 3
     x = torch.Tensor(1, channels, image_size, image_size)
 
-    config = get_config_encoder()
-    model = CvT_Vgg11(config)#CvTModified(config)#CvT()
+    config = get_config()
+    model = CvTModified(config)#CvT() CvT_Vgg11(config)#
     
     # model.train()
 
