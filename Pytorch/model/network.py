@@ -1,5 +1,5 @@
 from torch import nn
-from .blocks import *
+from blocks import *
 from torchvision import models
 
 class Encoder(nn.Module):
@@ -107,7 +107,7 @@ class CvT_Vgg11(nn.Module):
 
     def forward(self, x):
         x = self.encoder(x)
-        PrintLayer()(x)
+        # PrintLayer()(x)
 
         # Feature maps projection
         x = self.conv_1(x)
@@ -458,7 +458,13 @@ if __name__ == "__main__":
 
     config = get_config_encoder()
     model = CvT_Vgg11(config)#CvTModified(config)#CvT()
+    # model.train()
+
+    # for param in model.parameters():
+    #     # param.requires_grad = False
+    #     print(param.requires_grad)
+    
     out = model(x)
     trainable_params, total_params = count_params(model)
-    # print(model)
+    print(model)
     print("Trainable params: ", trainable_params, " total params: ", total_params)
