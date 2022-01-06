@@ -1,5 +1,5 @@
 from torch import nn
-from blocks import *
+from .blocks import *
 from torchvision import models
 
 class Encoder(nn.Module):
