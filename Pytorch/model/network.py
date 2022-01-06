@@ -108,16 +108,12 @@ class CvT_Vgg11(nn.Module):
         # )
 
         self.up_1 = UpSampleBlock(64, 64, config.normalization_rate)
-        self.layer_norm_1 = LayerNorm(64)
 
         self.up_2 = UpSampleBlock(64, 64, config.normalization_rate)
-        self.layer_norm_2 = LayerNorm(64)
 
         self.up_3 = UpSampleBlock(320, 64, config.normalization_rate)
-        self.layer_norm_3 = LayerNorm(64)
 
         self.up_4 = UpSampleBlock(192, 16, config.normalization_rate)
-        self.layer_norm_4 = LayerNorm(64)
 
         self.seg_head = SegmentationHead(16, config.num_classes)
 
@@ -146,19 +142,15 @@ class CvT_Vgg11(nn.Module):
         # x = self.bottle_neck(x)
 
         x = self.up_1(x)
-        x = self.layer_norm_1(x)
         # PrintLayer()(x, 'up 1')
 
         x = self.up_2(x)
-        x = self.layer_norm_2(x)
         # PrintLayer()(x, 'up 2')
 
         x = self.up_3(x, skips[-1])
-        x = self.layer_norm_3(x)
         # PrintLayer()(x, 'up 3')
         
         x = self.up_4(x, skips[-2])
-        x = self.layer_norm_4(x)
         # PrintLayer()(x, 'up 4')
 
         x = self.seg_head(x)

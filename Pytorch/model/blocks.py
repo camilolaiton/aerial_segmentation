@@ -150,7 +150,8 @@ class UpSampleBlock(nn.Module):
             stride=1,
             padding='same'
         )
-        self.batch_norm = nn.BatchNorm2d(out_channels, eps=norm_rate)
+        # self.batch_norm = nn.BatchNorm2d(out_channels, eps=norm_rate)
+        self.layer_norm = LayerNorm(out_channels, eps=norm_rate)
         self.activation = nn.ReLU()
 
         self.upsample = nn.Upsample(scale_factor=2, mode=up_mode, align_corners=True)
@@ -171,7 +172,8 @@ class UpSampleBlock(nn.Module):
             x = torch.cat([x, skip], dim=1)
         
         x = self.conv(x)
-        x = self.batch_norm(x)
+        # x = self.batch_norm(x)
+        x = self.layer_norm(x)
         return x
 
 class UpBlockskip(nn.Module):
