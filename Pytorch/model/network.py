@@ -1,15 +1,16 @@
 from torch import nn
-from .blocks import *
+from blocks import *
 from torchvision import models
 
 class Encoder(nn.Module):
-    def __init__(self, trainCNN=False, skip_cnt_lyrs=[1, 4, 9, 14, 19]):
+    def __init__(self, trainCNN=False, skip_cnt_lyrs=[0, 3, 8, 13, 18]):
         super(Encoder, self).__init__()
         self.trainCNN = trainCNN
         self.vgg11 = models.vgg11(pretrained=True)
         self.skip_cnt_lyrs = skip_cnt_lyrs
 
-        self.vgg11.features = nn.Sequential(*list(self.vgg11.features.children())[:9])
+        # print(self.vgg11)
+        self.vgg11.features = nn.Sequential(*list(self.vgg11.features.children())[:10])
         self.vgg11.avgpool = nn.Sequential(*list(self.vgg11.avgpool.children())[:-1])
         self.vgg11.classifier = nn.Sequential(*list(self.vgg11.classifier.children())[:-7])
 
@@ -21,15 +22,26 @@ class Encoder(nn.Module):
         # 256x64x64
         # 512x32x32
         # 512x16x16
-        return [self.vgg11.features[i] for i in self.skip_cnt_lyrs]
-
+        lyrs = []
+        for i in self.skip_cnt_lyrs:
+            try:
+                lyrs.append(self.vgg11.features[i])
+            except IndexError as err:
+                pass
+        return lyrs
+    
     def __set_grad_layers(self, requires_grad=False):
         for param in self.vgg11.parameters():
             param.requires_grad = requires_grad
 
     def forward(self, images):
-        features = self.vgg11.features(images)
-        return features
+        skips = []
+        for i, layer in enumerate(self.vgg11.features):
+            images = layer(images)
+            if i in self.skip_cnt_lyrs:
+                skips.append(images)
+        # features = self.vgg11.features(images)
+        return images, skips
 
 class CvT_Vgg11(nn.Module):
     def __init__(self, config):
@@ -83,37 +95,41 @@ class CvT_Vgg11(nn.Module):
             dropout=config.transformers[2]['dropout']
         )
 
-        self.bottle_neck = nn.Sequential(
-            nn.Conv2d(32, 64, kernel_size=3, padding=1, stride=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(64, 64, kernel_size=3, padding=1, stride=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(64, 128, kernel_size=3, padding=1, stride=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True),
-        )
+        # self.bottle_neck = nn.Sequential(
+        #     nn.Conv2d(64, 128, kernel_size=3, padding=1, stride=1),
+        #     nn.BatchNorm2d(128),
+        #     nn.ReLU(inplace=True),
+        #     nn.Conv2d(128, 128, kernel_size=3, padding=1, stride=1),
+        #     nn.BatchNorm2d(128),
+        #     nn.ReLU(inplace=True),
+        #     nn.Conv2d(128, 256, kernel_size=3, padding=1, stride=1),
+        #     nn.BatchNorm2d(256),
+        #     nn.ReLU(inplace=True),
+        # )
 
-        self.up_1 = UpSampleBlock(128, 64, config.normalization_rate)
+        self.up_1 = UpSampleBlock(64, 64, config.normalization_rate)
 
-        self.up_2 = UpSampleBlock(64, 32, config.normalization_rate)
+        self.up_2 = UpSampleBlock(64, 64, config.normalization_rate)
 
-        self.up_3 = UpSampleBlock(32, 16, config.normalization_rate)
+        self.up_3 = UpSampleBlock(320, 64, config.normalization_rate)
 
-        self.up_4 = UpSampleBlock(16, 8, config.normalization_rate)
+        self.up_4 = UpSampleBlock(192, 16, config.normalization_rate)
 
-        self.seg_head = SegmentationHead(8, config.num_classes)
+        self.seg_head = SegmentationHead(16, config.num_classes)
 
     def forward(self, x):
-        x = self.encoder(x)
-        # PrintLayer()(x)
+        x, skips = self.encoder(x)
+        # PrintLayer()(skips[0], 'skip 0')
+        # PrintLayer()(skips[1], 'skip 1')
+        # PrintLayer()(skips[2], 'skip 2')
+
+        # PrintLayer()(x, 'Encoder')
 
         # Feature maps projection
         x = self.conv_1(x)
-        # PrintLayer()(x)
+        # PrintLayer()(x, 'Conv proj1')
         x = self.conv_2(x)
-        # PrintLayer()(x)
+        # PrintLayer()(x, 'Conv proj2')
 
         # attention
         x = self.att_1(x)
@@ -123,22 +139,22 @@ class CvT_Vgg11(nn.Module):
         x = self.att_3(x)
         # PrintLayer()(x)
 
-        x = self.bottle_neck(x)
+        # x = self.bottle_neck(x)
 
         x = self.up_1(x)
-        # PrintLayer()(x)
+        # PrintLayer()(x, 'up 1')
 
         x = self.up_2(x)
-        # PrintLayer()(x)
+        # PrintLayer()(x, 'up 2')
 
-        x = self.up_3(x)
-        # PrintLayer()(x)
+        x = self.up_3(x, skips[-1])
+        # PrintLayer()(x, 'up 3')
         
-        x = self.up_4(x)
-        # PrintLayer()(x)
+        x = self.up_4(x, skips[-2])
+        # PrintLayer()(x, 'up 4')
 
         x = self.seg_head(x)
-        # PrintLayer()(x)
+        # PrintLayer()(x, 'seg head')
         return x
 
 
@@ -458,6 +474,7 @@ if __name__ == "__main__":
 
     config = get_config_encoder()
     model = CvT_Vgg11(config)#CvTModified(config)#CvT()
+    
     # model.train()
 
     # for param in model.parameters():

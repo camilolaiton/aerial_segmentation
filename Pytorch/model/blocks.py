@@ -6,9 +6,9 @@ class PrintLayer(nn.Module):
     def __init__(self):
         super(PrintLayer, self).__init__()
     
-    def forward(self, x):
+    def forward(self, x, message=''):
         # Do your print / debug stuff here
-        print(x.shape)
+        print(message, " ", x.shape)
         return x
 
 class LayerNorm(nn.Module):  # layernorm, but done in the channel dimension #1
@@ -151,20 +151,24 @@ class UpSampleBlock(nn.Module):
             padding='same'
         )
         self.batch_norm = nn.BatchNorm2d(out_channels, eps=norm_rate)
-        self.activation = nn.LeakyReLU()
+        self.activation = nn.ReLU()
 
         self.upsample = nn.Upsample(scale_factor=2, mode=up_mode, align_corners=True)
 
     def forward(self, x, skip=None):
         # print("DEBUG")
-        # PrintLayer()(x)
-        # PrintLayer()(skip)
 
-        x = self.upsample(x)
+        # if skip != None:
+        #     # PrintLayer()(x, 'X debug')
+        #     try:
+        #         PrintLayer()(skip, 'SKIP debug')
+        #     except AttributeError as err:
+        #         print("Can't print layer")
         
         if skip != None:
             x = torch.cat([x, skip], dim=1)
         
+        x = self.upsample(x)
         x = self.conv(x)
         x = self.batch_norm(x)
         return x
@@ -218,7 +222,7 @@ class ConvolutionalBlock(nn.Sequential):
             padding=padding,
         )
         
-        activation = nn.LeakyReLU()
+        activation = nn.ReLU()
         bn = nn.BatchNorm2d(out_channels)
 
         super(ConvolutionalBlock, self).__init__(

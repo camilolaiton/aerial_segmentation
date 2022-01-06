@@ -77,11 +77,11 @@ def get_config_encoder():
     config.normalization_rate = 1e-4
     config.loss = 'dice_cross'
     config.train_CNN = False
-    config.skip_lyrs = [1, 4, 9, 14, 19]
+    config.skip_lyrs = [0, 3, 8, 13, 18]
 
     config.transformers = [
         {
-            'dim': 32,
+            'dim': 64,
             'proj_kernel':3,
             'kv_proj_stride':2,
             'depth':1,
@@ -90,7 +90,7 @@ def get_config_encoder():
             'dropout':0.0
         },
         {
-            'dim': 32,
+            'dim': 64,
             'proj_kernel':3,
             'kv_proj_stride':2,
             'depth':2,
@@ -99,7 +99,7 @@ def get_config_encoder():
             'dropout':0.0
         },
         {
-            'dim': 32,
+            'dim': 64,
             'proj_kernel':3,
             'kv_proj_stride':2,
             'depth':10,
