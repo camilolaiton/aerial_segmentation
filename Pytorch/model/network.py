@@ -1,5 +1,5 @@
 from torch import nn
-from .blocks import *
+from blocks import *
 from torchvision import models
 
 class Encoder(nn.Module):
@@ -257,9 +257,9 @@ class CvTModified(nn.Module):
         #     nn.ReLU(inplace=True),
         # )
 
-        self.up_1 = UpSampleBlock(64, 64, config.normalization_rate)
+        self.up_1 = UpSampleBlock(64, 32, config.normalization_rate)
 
-        self.up_2 = UpSampleBlock(96, 32, config.normalization_rate)
+        self.up_2 = UpSampleBlock(64, 32, config.normalization_rate)
 
         self.up_3 = UpSampleBlock(64, 16, config.normalization_rate)
 

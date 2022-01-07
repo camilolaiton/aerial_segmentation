@@ -166,8 +166,8 @@ class UpSampleBlock(nn.Module):
         #     except AttributeError as err:
         #         print("Can't print layer")
         
-        # if skip != None:
-        #     x = torch.cat([x, skip], dim=1)
+        if skip != None:
+            x = torch.cat([x, skip], dim=1)
         
         x = self.upsample(x)
         x = self.conv(x)
