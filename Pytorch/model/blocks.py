@@ -227,11 +227,13 @@ class ConvolutionalBlock(nn.Sequential):
         
         activation = nn.ReLU()
         bn = nn.BatchNorm2d(out_channels)
+        # norm = LayerNorm(out_channels, eps=1e-4)
 
         super(ConvolutionalBlock, self).__init__(
             conv, 
-            activation, 
-            bn
+            activation,
+            bn 
+            # norm
         )
 
 class ConnectionComponents(nn.Module):
@@ -254,8 +256,8 @@ class ConnectionComponents(nn.Module):
             padding='same'
         )
 
-        self.activation_1 = nn.LeakyReLU()
-        self.activation_2 = nn.LeakyReLU()
+        self.activation_1 = nn.ReLU()
+        self.activation_2 = nn.ReLU()
 
         self.bach_norm_1 = nn.BatchNorm2d(1, eps=norm_rate)
         self.bach_norm_2 = nn.BatchNorm2d(out_channels, eps=norm_rate)
