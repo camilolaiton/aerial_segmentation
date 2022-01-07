@@ -141,7 +141,7 @@ class UpBlock(nn.Module):
         return self.double_conv(x)
 
 class UpSampleBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, norm_rate, up_mode='bilinear'):
+    def __init__(self, in_channels, out_channels, norm_rate, up_mode='nearest'):
         super(UpSampleBlock, self).__init__()
         self.conv = nn.Conv2d(
             in_channels=in_channels,

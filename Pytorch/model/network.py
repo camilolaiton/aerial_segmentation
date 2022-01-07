@@ -252,9 +252,9 @@ class CvTModified(nn.Module):
             nn.Conv2d(32, 64, kernel_size=3, padding=1, stride=2),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
-            # nn.Conv2d(64, 64, kernel_size=3, padding=1, stride=1),
-            # nn.BatchNorm2d(64),
-            # nn.ReLU(inplace=True),
+            nn.Conv2d(64, 64, kernel_size=3, padding=1, stride=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
         )
 
         self.up_1 = UpSampleBlock(96, 64, config.normalization_rate)
