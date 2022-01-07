@@ -248,18 +248,18 @@ class CvTModified(nn.Module):
             dropout=config.transformers[2]['dropout']
         )
 
-        # self.bottle_neck = nn.Sequential(
-        #     nn.Conv2d(32, 64, kernel_size=3, padding=1, stride=2),
-        #     nn.BatchNorm2d(64),
-        #     nn.ReLU(inplace=True),
-        #     nn.Conv2d(64, 64, kernel_size=3, padding=1, stride=1),
-        #     nn.BatchNorm2d(64),
-        #     nn.ReLU(inplace=True),
-        # )
+        self.bottle_neck = nn.Sequential(
+            nn.Conv2d(32, 64, kernel_size=3, padding=1, stride=2),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(64, 64, kernel_size=3, padding=1, stride=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+        )
 
-        self.up_1 = UpSampleBlock(64, 32, config.normalization_rate)
+        self.up_1 = UpSampleBlock(96, 64, config.normalization_rate)
 
-        self.up_2 = UpSampleBlock(64, 32, config.normalization_rate)
+        self.up_2 = UpSampleBlock(96, 32, config.normalization_rate)
 
         self.up_3 = UpSampleBlock(64, 16, config.normalization_rate)
 
@@ -297,7 +297,7 @@ class CvTModified(nn.Module):
         # PrintLayer()(x)
 
         # Input: N, 32, 32, 32 | output: N, 64, 16, 16
-        # x = self.bottle_neck(x)
+        x = self.bottle_neck(x)
         # PrintLayer()(x)
 
         # Input: N, 64, 16, 16 | output: N, 64, 32, 32
