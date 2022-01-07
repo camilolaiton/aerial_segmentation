@@ -290,30 +290,30 @@ class EncoderDecoderConnections(nn.Module):
             kernel_size=kernel_size,
         )
 
-        self.con_comp_2 = ConnectionComponents(
-            in_channels=in_channels,
-            out_channels=out_channels,
-            norm_rate=norm_rate,
-            kernel_size=kernel_size,
-        )
+        # self.con_comp_2 = ConnectionComponents(
+        #     in_channels=in_channels,
+        #     out_channels=out_channels,
+        #     norm_rate=norm_rate,
+        #     kernel_size=kernel_size,
+        # )
 
-        self.con_comp_3 = ConnectionComponents(
-            in_channels=in_channels,
-            out_channels=out_channels,
-            norm_rate=norm_rate,
-            kernel_size=kernel_size,
-        )
+        # self.con_comp_3 = ConnectionComponents(
+        #     in_channels=in_channels,
+        #     out_channels=out_channels,
+        #     norm_rate=norm_rate,
+        #     kernel_size=kernel_size,
+        # )
 
-        self.con_comp_4 = ConnectionComponents(
-            in_channels=in_channels,
-            out_channels=out_channels,
-            norm_rate=norm_rate,
-            kernel_size=kernel_size,
-        )
+        # self.con_comp_4 = ConnectionComponents(
+        #     in_channels=in_channels,
+        #     out_channels=out_channels,
+        #     norm_rate=norm_rate,
+        #     kernel_size=kernel_size,
+        # )
 
     def forward(self, x):
         x = self.con_comp_1(x)
-        x = self.con_comp_2(x)
-        x = self.con_comp_3(x)
-        x = self.con_comp_4(x)
+        # x = self.con_comp_2(x)
+        # x = self.con_comp_3(x)
+        # x = self.con_comp_4(x)
         return x
