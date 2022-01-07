@@ -154,7 +154,7 @@ class UpSampleBlock(nn.Module):
         self.layer_norm = LayerNorm(out_channels, eps=norm_rate)
         self.activation = nn.ReLU()
 
-        self.upsample = nn.Upsample(scale_factor=2, mode=up_mode, align_corners=False)
+        self.upsample = nn.Upsample(scale_factor=2, mode=up_mode)#, align_corners=False)
 
     def forward(self, x, skip=None):
         # print("DEBUG")
