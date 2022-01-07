@@ -267,7 +267,7 @@ class CvTModified(nn.Module):
 
         self.seg_head = SegmentationHead(16, config.num_classes)
 
-        # self.skip_process_0 = EncoderDecoderConnections(32, 32)
+        # self.skip_process_0 = EncoderDecoderConnections(16, 16)
         # self.skip_process_1 = EncoderDecoderConnections(32, 32)
         # self.skip_process_2 = EncoderDecoderConnections(32, 32)
         # self.skip_process_3 = EncoderDecoderConnections(32, 32)
