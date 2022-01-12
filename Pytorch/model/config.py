@@ -7,10 +7,10 @@ def get_config():
 
     config = ml_collections.ConfigDict()
 
-    config.batch_size = 32
-    config.num_epochs = 200
-    config.image_height = 128
-    config.image_width = 128
+    config.batch_size = 4
+    config.num_epochs = 70
+    config.image_height = 256
+    config.image_width = 256
     config.image_channels = 3
     config.image_size = (config.image_height, config.image_width, config.image_channels)
     config.normalization_rate = 1e-4
