@@ -9,8 +9,8 @@ def get_config():
 
     config.batch_size = 1
     config.num_epochs = 70
-    config.image_height = 512
-    config.image_width = 512
+    config.image_height = 400
+    config.image_width = 400
     config.image_channels = 3
     config.image_size = (config.image_height, config.image_width, config.image_channels)
     config.normalization_rate = 1e-4
