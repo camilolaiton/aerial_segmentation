@@ -262,10 +262,10 @@ def get_training_augmentation(config):
     return album.Compose(train_transform)
 
 
-def get_validation_augmentation():   
+def get_validation_augmentation(config):   
     # Add sufficient padding to ensure image is divisible by 32
     test_transform = [        
-        album.CenterCrop (height=512, width=512, always_apply=True)        
+        album.CenterCrop (height=config.image_height, width=config.image_height, always_apply=True)        
     ]
     return album.Compose(test_transform)
 
@@ -349,7 +349,7 @@ def main():
 
     data_test_loader = MassachusettsBuildingsDataset(
         x_test_dir, y_test_dir, 
-        augmentation=get_validation_augmentation(), 
+        augmentation=get_validation_augmentation(config), 
         preprocessing=get_preprocessing(preprocessing_fn=None),
         class_rgb_values=select_class_rgb_values,
     )
