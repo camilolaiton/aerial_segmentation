@@ -244,9 +244,9 @@ def train(config:dict, load_model:bool, save_model:bool, training_folder:str, tr
 
     writer.close()
 
-def get_training_augmentation():
+def get_training_augmentation(config):
     train_transform = [    
-        album.RandomCrop(height=256, width=256, always_apply=True),
+        album.RandomCrop(height=config.image_height, width=config.image_width, always_apply=True),
         album.OneOf(
             [
                 album.HorizontalFlip(p=1),
@@ -342,7 +342,7 @@ def main():
     data_train_loader = MassachusettsBuildingsDataset(
         x_train_dir, 
         y_train_dir, 
-        augmentation=get_training_augmentation(),
+        augmentation=get_training_augmentation(config),
         preprocessing=get_preprocessing(preprocessing_fn=None),
         class_rgb_values=select_class_rgb_values,
     )
